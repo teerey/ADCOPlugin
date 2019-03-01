@@ -71,6 +71,12 @@ namespace ADCOPlugin
         //Assembly files in the glue mandrel domain
         static string[] glueMandrelAssemblies = { "CYLINDER ASSEMBLY.SLDASM", "COMPACT GUIDE CYLINDER.SLDASM", "MANDREL ASSEMBLY.SLDASM" };
 
+        //Part files in the glue forming plate domain
+        static string[] glueFormerPlateParts = { "BOLT MOUNT.SLDPRT", "FOLDING PLATE BOTTOM.SLDPRT", "FOLDING PLATE LEFT.SLDPRT", "FOLDING PLATE RIGHT.SLDPRT", "FOLDING PLATE TOP.SLDPRT", "GUIDE RAIL MIRROR.SLDPRT", "GUIDE RAIL.SLDPRT", "MAIN PLATE.SLDPRT", "MINOR PLATE.SLDPRT", "MOUNT LEFT.SLDPRT", "MOUNT RIGHT.SLDPRT", "NUTPLATE LEFT AND RIGHT.SLDPRT", "NUTPLATE TOP.SLDPRT", "NUTPLATE1.SLDPRT", "SIDE GUIDE LEFT.SLDPRT", "SIDE GUIDE RIGHT.SLDPRT", "SPACER.SLDPRT", "SPACER1.SLDPRT", "SPACER2.SLDPRT", "SPREADER BOTTOM.SLDPRT", "SPREADER TOP.SLDPRT", "STOP RAIL.SLDPRT" };
+
+        //Assembly files in the forming plate mandrel domain
+        static string[] glueFormerPlateAssemblies = { "FORMER PLATE ASSEMBLY.SLDASM" };
+
         //Overarching SW variables
         // Declare a SolidWorks instance field
         public SldWorks.SldWorks swApp;
@@ -202,39 +208,54 @@ namespace ADCOPlugin
                 DirectoryCopy(srcPath, destPath, true);
             }
 
-            if(copystate == false && type == 0)
+            if(copystate == false && type == 0 && component == 0)
             {
-                MessageBox.Show($@"{destPath}\{formerElement[component]}\{glueMandrelParts[idx]}");
+                //MessageBox.Show($@"{destPath}\{formerElement[component]}\{glueMandrelParts[idx]}");
                 swModel = swApp.OpenDoc($@"{destPath}\{formerElement[component]}\{glueMandrelParts[idx]}", (int)swDocumentTypes_e.swDocPART);
                 swPart = (PartDoc)swApp.ActiveDoc;
             }
 
-            if(copystate == false && type == 1)
+            if(copystate == false && type == 1 && component == 0)
             {
                 swModel = swApp.OpenDoc($@"{destPath}\{formerElement[component]}\{glueMandrelAssemblies[idx]}", (int)swDocumentTypes_e.swDocASSEMBLY);
                 swAssem = (AssemblyDoc)swApp.ActiveDoc;
                 modelExt = (ModelDocExtension)swModel.Extension;
             }
 
-            //ModelDocExtension modelExt = (ModelDocExtension)model.Extension;
-            //try
-            //{
-            //    // Try to open the copied document
-            //swPart = swApp.OpenDoc(destPath, (int)swDocumentTypes_e.swDocPART);
+            if (copystate == false && type == 0 && component == 1)
+            {
+                //MessageBox.Show($@"{destPath}\{formerElement[component]}\{glueFormingPlateParts[idx]}");
+                swModel = swApp.OpenDoc($@"{destPath}\{formerElement[component]}\{glueFormerPlateParts[idx]}", (int)swDocumentTypes_e.swDocPART);
+                swPart = (PartDoc)swApp.ActiveDoc;
+            }
 
-            //}
-            //catch (Exception)
-            //{
-            //    // If an exception is thrown, notify the user that the file was not able to be opened
-            //    MessageBox.Show(string.Format("File Open Failed"));
+            if (copystate == false && type == 1 && component == 1)
+            {
+                //MessageBox.Show($@"{destPath}\{formerElement[component]}\{glueFormerPlateAssemblies[idx]}");
+                swModel = swApp.OpenDoc($@"{destPath}\{formerElement[component]}\{glueFormerPlateAssemblies[idx]}", (int)swDocumentTypes_e.swDocASSEMBLY);
+                swAssem = (AssemblyDoc)swApp.ActiveDoc;
+                modelExt = (ModelDocExtension)swModel.Extension;
+            }
 
-            //    // Clear any unused objects - should clean up any COM-related errors that arise after debug close
-            //    Marshal.CleanupUnusedObjectsInCurrentContext();
+                //ModelDocExtension modelExt = (ModelDocExtension)model.Extension;
+                //try
+                //{
+                //    // Try to open the copied document
+                //swPart = swApp.OpenDoc(destPath, (int)swDocumentTypes_e.swDocPART);
 
-            //    // Return to the parent function (GlueButtonClick)
-            //    return;
-            //}
-            return;
+                //}
+                //catch (Exception)
+                //{
+                //    // If an exception is thrown, notify the user that the file was not able to be opened
+                //    MessageBox.Show(string.Format("File Open Failed"));
+
+                //    // Clear any unused objects - should clean up any COM-related errors that arise after debug close
+                //    Marshal.CleanupUnusedObjectsInCurrentContext();
+
+                //    // Return to the parent function (GlueButtonClick)
+                //    return;
+                //}
+                return;
         }
 
         /// <summary>
@@ -251,6 +272,8 @@ namespace ADCOPlugin
                 return;
             }
         }
+
+        #region User input value check
 
         private int GlueRead()
         {
@@ -312,6 +335,7 @@ namespace ADCOPlugin
 
             return (0);
         }
+        #endregion
 
         /// <summary>
         /// Adjusts the dimensions of a copied generic model - this is where most of the work is done
@@ -362,12 +386,14 @@ namespace ADCOPlugin
                 while (true)
                 {
 
+                    #region Case check for mandrel components\
+                    
                     switch (idx)
                     {
                         case 0:
                             if (redundant[0] == '0')
                             {
-                                MessageBox.Show("Starting to edit the carton model");
+                                //MessageBox.Show("Starting to edit the carton model");
                                 GlueOpen(false, TYPE_PART, idx, COMPONENT_MAN);
                                 swFeat = swPart.FeatureByName("Extrude1");
                                 swFeat.Select2(false, -1);
@@ -500,15 +526,275 @@ namespace ADCOPlugin
                                 swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_MAN]}\{glueMandrelParts[idx]}");
                                 File.Copy($@"{destPath}\{formerElement[COMPONENT_MAN]}\{glueMandrelParts[idx]}", $@"{archLibDEFAULT}\{formerType[0]}\{formerElement[COMPONENT_MAN]}\C{cDimStr} D{dDimStr} {glueMandrelParts[idx]}", true);
                             }
-                            idx = 11;
+                            
+                            idx = 1;
                             break;
 
                         default:
                             //MessageBox.Show("Something went wrong!");
                             break;
                     }
+                    
+                    #endregion
 
-                    if (idx == 11)
+                    #region Case check for former components
+
+                    switch (idx)
+                    {
+                        case 1:
+                          
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            if(cDim + 4 * ThiccDim - 0.15625 < 11)
+                            {
+                                swFeat = swPart.FeatureByName("Cut-Extrude6");
+                                swFeat.Select2(false, -1);
+                                bool suppressionState = swModel.EditSuppress2();
+                            }
+                            swFeat = swPart.FeatureByName("Sketch1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("FPB");
+                            errors = swDim.SetSystemValue3(cDim + 4*ThiccDim -0.15625 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+
+                            swFeat = swPart.FeatureByName("Cut-Extrude4");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("D1");
+                            errors = swDim.SetSystemValue3(cDim + 4 * ThiccDim - 6.5 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 2;
+                            break;
+
+                        case 2:
+                            
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            if (dDim + 2 * ThiccDim - 1 < 6.25)
+                            {
+
+                                //MessageBox.Show("in if statement");
+
+                                swFeat = swPart.FeatureByName("Sketch5");
+                                swFeat.Select2(false, -1);
+                                bool suppressionState1 = swModel.EditSuppress2();
+
+                                swFeat = swPart.FeatureByName("Cut-Extrude5");
+                                swFeat.Select2(false, -1);
+                                bool suppressionState2 = swModel.EditSuppress2(); ;
+
+                                swFeat = swPart.FeatureByName("Cut-Revolve3");
+                                swFeat.Select2(false, -1);
+                                bool suppressionState3 = swModel.EditUnsuppress2();
+
+                            }
+                            swFeat = swPart.FeatureByName("Sketch1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("FPL");
+                            errors = swDim.SetSystemValue3(dDim + 2 * ThiccDim - 1 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 3;
+
+                            break;
+
+                        case 3:
+                            
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            if (dDim + 2 * ThiccDim - 1 < 6.25)
+                            {
+
+                                swFeat = swPart.FeatureByName("Sketch5");
+                                swFeat.Select2(false, -1);
+                                bool suppressionState1 = swModel.EditSuppress2();
+
+                                swFeat = swPart.FeatureByName("Cut-Extrude5");
+                                swFeat.Select2(false, -1);
+                                bool suppressionState2 = swModel.EditSuppress2();
+
+                                swFeat = swPart.FeatureByName("Cut-Revolve1");
+                                swFeat.Select2(false, -1);
+                                bool suppressionState3 = swModel.EditUnsuppress();
+
+                            }
+                            swFeat = swPart.FeatureByName("Sketch1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("FPR");
+                            errors = swDim.SetSystemValue3(dDim + 2 * ThiccDim - 1 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 4;
+                            break;
+
+                        case 4:
+                            
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            swFeat = swPart.FeatureByName("Sketch1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("FPT");
+                            errors = swDim.SetSystemValue3(cDim + 4 * ThiccDim - 0.15625 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 6;
+                            break;
+
+                        case 6:
+
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            swFeat = swPart.FeatureByName("Base-Flange1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("GRail");
+                            errors = swDim.SetSystemValue3(dDim + 2 * ThiccDim + 9.8125 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 7;
+                            break;
+
+                        case 7:
+
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            if (dDim + 2 * ThiccDim - 1 < 6.25)
+                            {
+                                swFeat = swPart.FeatureByName("Cut-Extrude10");
+                                swFeat.Select2(false, -1);
+                                bool suppressionState1 = swModel.EditSuppress2();
+
+                            }
+                            swFeat = swPart.FeatureByName("Sketch10");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("MainC");
+                            errors = swDim.SetSystemValue3(cDim, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swDim = (Dimension)swFeat.Parameter("MainD");
+                            errors = swDim.SetSystemValue3(dDim, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 9;
+                            break;
+
+                        case 9:
+
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            swFeat = swPart.FeatureByName("Extrude1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("MountL");
+                            errors = swDim.SetSystemValue3(dDim + 2 * ThiccDim + 11.5625 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 10;
+                            break;
+
+                        case 10:
+
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            swFeat = swPart.FeatureByName("Extrude1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("MountR");
+                            errors = swDim.SetSystemValue3(dDim + 2 * ThiccDim + 11.5625 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 11;
+                            break;
+
+                        case 11:
+
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            if (dDim + 2 * ThiccDim - 1 < 6.25)
+                            {
+                                swFeat = swPart.FeatureByName("M6x1.0 Tapped Hole1");
+                                swFeat.Select2(false, -1);
+                                bool suppressionState1 = swModel.EditSuppress2();
+
+                                swFeat = swPart.FeatureByName("M6x1.0 Tapped Hole2");
+                                swFeat.Select2(false, -1);
+                                bool suppressionState3 = swModel.EditUnsuppress();
+
+                            }
+                            swFeat = swPart.FeatureByName("Extrude1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("NP");
+                            errors = swDim.SetSystemValue3(dDim + 2 * ThiccDim - 4.6875 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 12;
+                            break;
+
+                        case 12:
+
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            swFeat = swPart.FeatureByName("Extrude1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("NPT");
+                            errors = swDim.SetSystemValue3(cDim + 4 * ThiccDim - 2.5 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 19;
+                            break;
+
+                        case 19:
+
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            swFeat = swPart.FeatureByName("Sketch1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("SpreadWidthB");
+                            errors = swDim.SetSystemValue3(cDim + 4 * ThiccDim + 10.5 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 20;
+                            break;
+
+                        case 20:
+
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            swFeat = swPart.FeatureByName("Sketch1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("SpreadWidthT");
+                            errors = swDim.SetSystemValue3(cDim + 4 * ThiccDim + 10.5 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 21;
+                            break;
+
+                        case 21:
+
+                            GlueOpen(false, TYPE_PART, idx, COMPONENT_FP);
+                            swFeat = swPart.FeatureByName("Base-Flange1");
+                            swFeat.Select2(false, -1);
+                            swDim = (Dimension)swFeat.Parameter("D2");
+                            errors = swDim.SetSystemValue3(cDim + 4 * ThiccDim - 4.5 / INCH_CONVERSION, (int)swSetValueInConfiguration_e.swSetValue_InThisConfiguration, null);
+                            swPart.EditRebuild();
+                            swModel.Save();
+                            swApp.CloseDoc($@"{destPath}\{formerElement[COMPONENT_FP]}\{glueFormerPlateParts[idx]}");
+
+                            idx = 69;
+                            break;
+                    }
+
+                    #endregion
+
+                    if (idx == 69)
                     {
                         break;
                     }
@@ -520,6 +806,12 @@ namespace ADCOPlugin
 
                 idx = glueMandrelAssemblies.Length - 1;
                 GlueOpen(false, TYPE_ASSEM, idx, COMPONENT_MAN);
+
+
+                idx = 0;
+                GlueOpen(false, TYPE_ASSEM, idx, COMPONENT_FP);
+
+
                 //swDrawing = (DrawingDoc)swApp.ActiveDoc;
 
                 //PartDoc part = (PartDoc) swApp.ActiveDoc;

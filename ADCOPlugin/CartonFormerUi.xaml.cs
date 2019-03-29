@@ -72,7 +72,28 @@ namespace ADCOPlugin
         static string[] glueMandrelAssemblies = { "CYLINDER ASSEMBLY.SLDASM", "COMPACT GUIDE CYLINDER.SLDASM", "MANDREL ASSEMBLY.SLDASM" };
 
         //Part files in the glue forming plate domain
-        static string[] glueFormerPlateParts = { "BOLT MOUNT.SLDPRT", "FOLDING PLATE BOTTOM.SLDPRT", "FOLDING PLATE LEFT.SLDPRT", "FOLDING PLATE RIGHT.SLDPRT", "FOLDING PLATE TOP.SLDPRT", "GUIDE RAIL MIRROR.SLDPRT", "GUIDE RAIL.SLDPRT", "MAIN PLATE.SLDPRT", "MINOR PLATE.SLDPRT", "MOUNT LEFT.SLDPRT", "MOUNT RIGHT.SLDPRT", "NUTPLATE LEFT AND RIGHT.SLDPRT", "NUTPLATE TOP.SLDPRT", "NUTPLATE1.SLDPRT", "SIDE GUIDE LEFT.SLDPRT", "SIDE GUIDE RIGHT.SLDPRT", "SPACER.SLDPRT", "SPACER1.SLDPRT", "SPACER2.SLDPRT", "SPREADER BOTTOM.SLDPRT", "SPREADER TOP.SLDPRT", "STOP RAIL.SLDPRT" };
+        static string[] glueFormerPlateParts = {"BOLT MOUNT.SLDPRT",//0
+                                                "FOLDING PLATE BOTTOM.SLDPRT",//1
+                                                "FOLDING PLATE LEFT.SLDPRT",//2
+                                                "FOLDING PLATE RIGHT.SLDPRT",//3
+                                                "FOLDING PLATE TOP.SLDPRT",//4
+                                                "GUIDE RAIL MIRROR.SLDPRT",//5
+                                                "GUIDE RAIL.SLDPRT",//6
+                                                "MAIN PLATE.SLDPRT",//7
+                                                "MINOR PLATE.SLDPRT",//8
+                                                "MOUNT LEFT.SLDPRT",//9
+                                                "MOUNT RIGHT.SLDPRT",//10
+                                                "NUTPLATE LEFT AND RIGHT.SLDPRT",//11
+                                                "NUTPLATE TOP.SLDPRT",//12
+                                                "NUTPLATE1.SLDPRT",//13
+                                                "SIDE GUIDE LEFT.SLDPRT",//14
+                                                "SIDE GUIDE RIGHT.SLDPRT",//15
+                                                "SPACER.SLDPRT",//16
+                                                "SPACER1.SLDPRT",//17
+                                                "SPACER2.SLDPRT",//18
+                                                "SPREADER BOTTOM.SLDPRT",//19
+                                                "SPREADER TOP.SLDPRT",//20
+                                                "STOP RAIL.SLDPRT" };//21
 
         //Assembly files in the forming plate mandrel domain
         static string[] glueFormerPlateAssemblies = { "FORMER PLATE ASSEMBLY.SLDASM" };
